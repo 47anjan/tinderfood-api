@@ -1,30 +1,52 @@
 const validate = require("validator");
 
-const signupValidation = (req) => {
+const profileEditPermission = [
+  "name",
+  "username",
+  "bio",
+  "location",
+  "avatar",
+  "cookingLevel",
+  "dietaryRestrictions",
+  "favoriteFoods",
+  "cuisinePreferences",
+];
+
+const editCookingLevel = [
+  "beginner",
+  "intermediate",
+  "advanced",
+  "professional",
+];
+
+const validateEditProfile = (req) => {
   const {
-    username,
-    email,
-    password,
     avatar,
     cuisinePreferences,
     favoriteFoods,
     dietaryRestrictions,
     name,
+    username,
+    cookingLevel,
   } = req.body;
+
+  const hasEditPermission = Object.keys(req.body).every((key) =>
+    profileEditPermission.includes(key)
+  );
+
+  if (!hasEditPermission) {
+    throw new Error("Profile edit permission denied");
+  }
+
+  if (!editCookingLevel.includes(cookingLevel)) {
+    throw new Error("Invalid cooking level");
+  }
 
   if (!username || username.length < 3 || username.length > 30) {
     throw new Error("Username must be between 3 and 30 characters long");
   }
   if (!name) {
     throw new Error("Name cant be empty");
-  }
-
-  if (!validate.isEmail(email)) {
-    throw new Error("Invalid email format");
-  }
-
-  if (!password || password.length < 6) {
-    throw new Error("Password must be at least 6 characters long");
   }
 
   if (avatar && validate.isURL(avatar) === false) {
@@ -42,4 +64,4 @@ const signupValidation = (req) => {
   }
 };
 
-module.exports = signupValidation;
+module.exports = validateEditProfile;
