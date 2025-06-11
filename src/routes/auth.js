@@ -76,7 +76,9 @@ router.post("/login", async (req, res) => {
     res.cookie("token", token, {
       expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
     });
+
     const { password: _, ...userWithoutPassword } = user.toObject();
+
     res.send(userWithoutPassword);
   } catch (err) {
     console.error("Error logging in:", err);

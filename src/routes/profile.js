@@ -20,7 +20,7 @@ router.get("/profile/view", authorized, async (req, res) => {
   }
 });
 
-router.get("/profile/edit", authorized, async (req, res) => {
+router.patch("/profile/edit", authorized, async (req, res) => {
   try {
     validateEditProfile(req);
 

@@ -9,6 +9,14 @@ const app = express();
 app.use(express.json());
 app.use(cookie());
 
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    credentials: true,
+  })
+);
+
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/user");
 const profileRoutes = require("./routes/profile");
@@ -20,14 +28,6 @@ app.use("/api/", userRoutes);
 app.use("/api/", profileRoutes);
 app.use("/api/", usersRoutes);
 app.use("/api/", requestRoutes);
-
-app.use(
-  cors({
-    origin: "http://localhost:3000",
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-  })
-);
 
 app.get("/", (req, res) => {
   res.send("Hello World");

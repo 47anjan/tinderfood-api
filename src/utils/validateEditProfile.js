@@ -12,13 +12,6 @@ const profileEditPermission = [
   "cuisinePreferences",
 ];
 
-const editCookingLevel = [
-  "beginner",
-  "intermediate",
-  "advanced",
-  "professional",
-];
-
 const validateEditProfile = (req) => {
   const {
     avatar,
@@ -27,7 +20,7 @@ const validateEditProfile = (req) => {
     dietaryRestrictions,
     name,
     username,
-    cookingLevel,
+    location,
   } = req.body;
 
   const hasEditPermission = Object.keys(req.body).every((key) =>
@@ -38,15 +31,13 @@ const validateEditProfile = (req) => {
     throw new Error("Profile edit permission denied");
   }
 
-  if (!editCookingLevel.includes(cookingLevel)) {
-    throw new Error("Invalid cooking level");
-  }
-
-  if (!username || username.length < 3 || username.length > 30) {
-    throw new Error("Username must be between 3 and 30 characters long");
-  }
-  if (!name) {
-    throw new Error("Name cant be empty");
+  if (location) {
+    if (!name) {
+      throw new Error("Name cant be empty");
+    }
+    if (!username || username.length < 3 || username.length > 30) {
+      throw new Error("Username must be between 3 and 30 characters long");
+    }
   }
 
   if (avatar && validate.isURL(avatar) === false) {
