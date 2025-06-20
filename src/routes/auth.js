@@ -92,7 +92,7 @@ router.post("/logout", (req, res) => {
     expires: new Date(Date.now()),
   });
 
-  res.send("Logout Successful");
+  res.send({ message: "Logout Successful" });
 });
 
 module.exports = router;
