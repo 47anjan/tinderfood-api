@@ -19,4 +19,19 @@ router.get("/user/requests/received", authorized, async (req, res) => {
   }
 });
 
+router.get("/user/requests/pending", authorized, async (req, res) => {
+  try {
+    const loggedInUser = res.user._id;
+
+    const data = await ConnectionRequest.find({
+      fromUserId: loggedInUser,
+      status: "interested",
+    }).populate("toUserId", ["name", "email", "username"]);
+
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 module.exports = router;
