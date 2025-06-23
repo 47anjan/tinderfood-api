@@ -13,12 +13,26 @@ const profileInfo = [
   "bio",
 ];
 
+const fullProfileInfo = [
+  "name",
+  "email",
+  "username",
+  "cookingLevel",
+  "avatar",
+  "bio",
+  "dietaryRestrictions",
+  "favoriteFoods",
+  "cuisinePreferences",
+  "createdAt",
+  "location",
+];
+
 router.get("/user/requests/received", authorized, async (req, res) => {
   try {
-    const loggedInUser = res.user._id;
+    const loggedInUserId = res.user._id;
 
     const data = await ConnectionRequest.find({
-      toUserId: loggedInUser,
+      toUserId: loggedInUserId,
       status: "interested",
     }).populate("fromUserId", profileInfo);
 
@@ -30,10 +44,10 @@ router.get("/user/requests/received", authorized, async (req, res) => {
 
 router.get("/user/requests/pending", authorized, async (req, res) => {
   try {
-    const loggedInUser = res.user._id;
+    const loggedInUserId = res.user._id;
 
     const data = await ConnectionRequest.find({
-      fromUserId: loggedInUser,
+      fromUserId: loggedInUserId,
       status: "interested",
     }).populate("toUserId", profileInfo);
 
@@ -45,19 +59,19 @@ router.get("/user/requests/pending", authorized, async (req, res) => {
 
 router.get("/user/connections", authorized, async (req, res) => {
   try {
-    const loggedInUser = res.user._id;
+    const loggedInUserId = res.user._id;
 
     const data = await ConnectionRequest.find({
       $or: [
-        { toUserId: loggedInUser, status: "accepted" },
-        { fromUserId: loggedInUser, status: "accepted" },
+        { toUserId: loggedInUserId, status: "accepted" },
+        { fromUserId: loggedInUserId, status: "accepted" },
       ],
     })
-      .populate("toUserId", profileInfo)
-      .populate("fromUserId", profileInfo);
+      .populate("toUserId", fullProfileInfo)
+      .populate("fromUserId", fullProfileInfo);
 
     const user = data.map((con) => {
-      if (con.fromUserId._id.toString() === loggedInUser.toString())
+      if (con.fromUserId._id.toString() === loggedInUserId.toString())
         return con.toUserId;
       return con.fromUserId;
     });
