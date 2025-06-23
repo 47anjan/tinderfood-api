@@ -25,12 +25,12 @@ router.get("/users", authorized, async (req, res) => {
       hideUserFromList.add(con.toUserId.toString());
     });
 
-    const users = await User.find(
-      {
-        _id: { $nin: Array.from(hideUserFromList) },
-      },
-      "-password -__v"
-    );
+    const users = await User.find({
+      $and: [
+        { _id: { $nin: Array.from(hideUserFromList) } },
+        { _id: { $ne: loggedInUserId } },
+      ],
+    }).select("-password -__v");
 
     res.send(users);
   } catch (err) {
