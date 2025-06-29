@@ -1,6 +1,7 @@
 const express = require("express");
 const { authorized } = require("../middleware/auth");
 const ConnectionRequest = require("../models/connectionRequest");
+const favoriteRecipe = require("../models/favoriteRecipe");
 
 const router = express.Router();
 
@@ -77,6 +78,20 @@ router.get("/user/connections", authorized, async (req, res) => {
     });
 
     res.status(200).json(user);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+router.get("/user/favoriteRecipes", authorized, async (req, res) => {
+  try {
+    const loggedInUser = res.user;
+
+    const data = await favoriteRecipe.find({
+      email: loggedInUser.email,
+    });
+
+    res.status(200).json(data);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
