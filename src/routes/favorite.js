@@ -28,18 +28,18 @@ router.post("/favorite/recipe/save", authorized, async (req, res) => {
 });
 
 router.delete(
-  "/favorite/recipe/remove:recipeId",
+  "/favorite/recipe/remove:favoriteRecipeId",
   authorized,
   async (req, res) => {
     try {
-      const { recipeId } = req.params;
+      const { favoriteRecipeId } = req.params;
 
-      if (!recipeId) {
+      if (!favoriteRecipeId) {
         res.status(401).send({ message: "Recipe Id cant be empty" });
       }
 
       const recipe = await favoriteRecipe.findOne({
-        _id: recipeId,
+        _id: favoriteRecipeId,
       });
 
       if (!recipe) {
