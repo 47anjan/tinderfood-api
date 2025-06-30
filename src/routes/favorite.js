@@ -27,8 +27,35 @@ router.post("/favorite/recipe/save", authorized, async (req, res) => {
   }
 });
 
+router.get(
+  "/favorite/recipe/:favoriteRecipeId",
+  authorized,
+  async (req, res) => {
+    try {
+      const { favoriteRecipeId } = req.params;
+      const loggedInUser = res.user;
+
+      if (!favoriteRecipeId) {
+        res.status(401).send({ message: "Recipe Id cant be empty" });
+      }
+
+      const recipe = await favoriteRecipe.findOne({
+        _id: favoriteRecipeId,
+        email: loggedInUser.email,
+      });
+
+      if (!recipe) {
+        throw new Error("Recipe does not exist!");
+      }
+
+      res.send(recipe);
+    } catch (err) {
+      return res.status(401).send({ message: err.message });
+    }
+  }
+);
 router.delete(
-  "/favorite/recipe/remove:favoriteRecipeId",
+  "/favorite/recipe/remove/:favoriteRecipeId",
   authorized,
   async (req, res) => {
     try {
@@ -43,7 +70,7 @@ router.delete(
       });
 
       if (!recipe) {
-        throw new Error("Connection does not exist!");
+        throw new Error("Recipe does not exist!");
       }
 
       const data = await connection.deleteOne();
