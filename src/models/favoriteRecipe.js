@@ -1,11 +1,9 @@
 const mongoose = require("mongoose");
-const validate = require("validator");
 
 const favoriteRecipeSchema = new mongoose.Schema(
   {
     id: {
       type: mongoose.Schema.Types.String,
-      required: true,
     },
     title: {
       type: mongoose.Schema.Types.String,
@@ -13,16 +11,9 @@ const favoriteRecipeSchema = new mongoose.Schema(
     image: {
       type: mongoose.Schema.Types.String,
     },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      trim: true,
-      lowercase: true,
-      validate: {
-        validator: (value) => validate.isEmail(value),
-        message: "Invalid email format",
-      },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
   },
   {
@@ -30,6 +21,6 @@ const favoriteRecipeSchema = new mongoose.Schema(
   }
 );
 
-favoriteRecipeSchema.index({ id: 1 });
+favoriteRecipeSchema.index({ userId: 1, id: 1 });
 
 module.exports = mongoose.model("FavoriteRecipe", favoriteRecipeSchema);

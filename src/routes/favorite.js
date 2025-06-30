@@ -1,22 +1,22 @@
 const express = require("express");
 const { authorized } = require("../middleware/auth");
 const favoriteRecipeValidation = require("../utils/favoriteRecipeValidation");
-const favoriteRecipe = require("../models/favoriteRecipe");
+const FavoriteRecipe = require("../models/favoriteRecipe");
 
 const router = express.Router();
 
-router.post("/favorite/recipe/save", authorized, async (req, res) => {
+router.post("/favorite/recipe/add", authorized, async (req, res) => {
   try {
     favoriteRecipeValidation(req);
 
     const { title, image, id } = req.body;
     const loggedInUser = res.user;
 
-    const data = await favoriteRecipe({
+    const data = await FavoriteRecipe({
       id,
       title,
       image,
-      email: loggedInUser.email,
+      userId: loggedInUser._id,
     });
 
     await data.save();
@@ -39,9 +39,9 @@ router.get(
         res.status(401).send({ message: "Recipe Id cant be empty" });
       }
 
-      const recipe = await favoriteRecipe.findOne({
+      const recipe = await FavoriteRecipe.findOne({
         id: favoriteRecipeId,
-        email: loggedInUser.email,
+        userId: loggedInUser._id,
       });
 
       if (!recipe) {
@@ -60,20 +60,22 @@ router.delete(
   async (req, res) => {
     try {
       const { favoriteRecipeId } = req.params;
+      const loggedInUser = res.user;
 
       if (!favoriteRecipeId) {
         res.status(401).send({ message: "Recipe Id cant be empty" });
       }
 
-      const recipe = await favoriteRecipe.findOne({
-        _id: favoriteRecipeId,
+      const recipe = await FavoriteRecipe.findOne({
+        id: favoriteRecipeId,
+        userId: loggedInUser._id,
       });
 
       if (!recipe) {
         throw new Error("Recipe does not exist!");
       }
 
-      const data = await connection.deleteOne();
+      const data = await recipe.deleteOne();
 
       res.send(data);
     } catch (err) {
