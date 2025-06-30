@@ -30,4 +30,6 @@ const favoriteRecipeSchema = new mongoose.Schema(
   }
 );
 
+favoriteRecipeSchema.index({ id: 1 });
+
 module.exports = mongoose.model("FavoriteRecipe", favoriteRecipeSchema);

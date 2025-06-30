@@ -40,7 +40,7 @@ router.get(
       }
 
       const recipe = await favoriteRecipe.findOne({
-        _id: favoriteRecipeId,
+        id: favoriteRecipeId,
         email: loggedInUser.email,
       });
 
@@ -81,3 +81,5 @@ router.delete(
     }
   }
 );
+
+module.exports = router;
