@@ -88,7 +88,7 @@ router.get("/user/favoriteRecipes", authorized, async (req, res) => {
     const loggedInUser = res.user;
 
     const data = await favoriteRecipe.find({
-      email: loggedInUser.email,
+      userId: loggedInUser._id,
     });
 
     res.status(200).json(data);
