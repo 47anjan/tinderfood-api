@@ -12,6 +12,15 @@ router.post("/favorite/recipe/add", authorized, async (req, res) => {
     const { title, image, id } = req.body;
     const loggedInUser = res.user;
 
+    const existRecipe = await FavoriteRecipe.findOne({
+      id,
+      userId: loggedInUser._id,
+    });
+
+    if (existRecipe) {
+      res.status(401).send({ message: "Recipe is already exist on the list" });
+    }
+
     const data = await FavoriteRecipe({
       id,
       title,
