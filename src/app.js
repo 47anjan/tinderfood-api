@@ -24,12 +24,12 @@ const usersRoutes = require("./routes/users");
 const requestRoutes = require("./routes/request");
 const favoriteRoutes = require("./routes/favorite");
 
-app.use("/api/", favoriteRoutes);
 app.use("/api/", authRoutes);
 app.use("/api/", userRoutes);
 app.use("/api/", profileRoutes);
 app.use("/api/", usersRoutes);
 app.use("/api/", requestRoutes);
+app.use("/api/", favoriteRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello World");
