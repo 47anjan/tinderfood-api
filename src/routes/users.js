@@ -12,6 +12,14 @@ router.get("/users", authorized, async (req, res) => {
       return res.status(401).send({ message: "Unauthorized" });
     }
 
+    const { page = 1, limit = 10 } = req.query;
+
+    if (limit > 1000 || page > 1000) {
+      (page = 1), (limit = 10);
+    }
+
+    const skip = (page - 1) * limit;
+
     const loggedInUserId = user._id;
 
     const connections = await ConnectionRequest.find({
@@ -30,7 +38,11 @@ router.get("/users", authorized, async (req, res) => {
         { _id: { $nin: Array.from(hideUserFromList) } },
         { _id: { $ne: loggedInUserId } },
       ],
-    }).select("-password -__v");
+    })
+      .select("-password -__v")
+      .limit(limit)
+      .skip(skip)
+      .sort({ createdAt: -1 });
 
     res.send(users);
   } catch (err) {
