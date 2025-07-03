@@ -35,7 +35,9 @@ router.get("/user/requests/received", authorized, async (req, res) => {
     const data = await ConnectionRequest.find({
       toUserId: loggedInUserId,
       status: "interested",
-    }).populate("fromUserId", profileInfo);
+    })
+      .populate("fromUserId", profileInfo)
+      .sort({ createdAt: -1 });
 
     res.status(200).json(data);
   } catch (error) {
@@ -50,7 +52,9 @@ router.get("/user/requests/pending", authorized, async (req, res) => {
     const data = await ConnectionRequest.find({
       fromUserId: loggedInUserId,
       status: "interested",
-    }).populate("toUserId", profileInfo);
+    })
+      .populate("toUserId", profileInfo)
+      .sort({ createdAt: -1 });
 
     res.status(200).json(data);
   } catch (error) {
@@ -69,7 +73,8 @@ router.get("/user/connections", authorized, async (req, res) => {
       ],
     })
       .populate("toUserId", fullProfileInfo)
-      .populate("fromUserId", fullProfileInfo);
+      .populate("fromUserId", fullProfileInfo)
+      .sort({ createdAt: -1 });
 
     const user = data.map((con) => {
       if (con.fromUserId._id.toString() === loggedInUserId.toString())
@@ -87,9 +92,11 @@ router.get("/user/favoriteRecipes", authorized, async (req, res) => {
   try {
     const loggedInUser = res.user;
 
-    const data = await favoriteRecipe.find({
-      userId: loggedInUser._id,
-    });
+    const data = await favoriteRecipe
+      .find({
+        userId: loggedInUser._id,
+      })
+      .sort({ createdAt: -1 });
 
     res.status(200).json(data);
   } catch (error) {
