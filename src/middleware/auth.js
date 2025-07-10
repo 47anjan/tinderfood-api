@@ -9,10 +9,7 @@ const authorized = async (req, res, next) => {
       return res.status(401).send({ message: "Unauthorized" });
     }
 
-    const decoded = await jwt.verify(
-      token,
-      "16d74673bc7728c75ac00ad0633225f4a2a3ea1086216abf04267c8756f1a210"
-    );
+    const decoded = await jwt.verify(token, process.env.JTW_SECRET);
 
     const user = await User.findById(decoded._id);
     if (!user) {
