@@ -35,7 +35,6 @@ const initializeSocket = (server) => {
       socket.to(roomId).emit("receiveMessage", message);
     });
 
-    // Typing events
     socket.on("startTyping", ({ fromUserId, toUserId }) => {
       const roomId = generateRoomId(fromUserId, toUserId);
       socket.to(roomId).emit("startTyping", {
