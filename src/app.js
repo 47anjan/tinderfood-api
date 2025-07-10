@@ -2,7 +2,7 @@ const express = require("express");
 
 const cors = require("cors");
 const cookie = require("cookie-parser");
-
+const http = require("http");
 const connectDB = require("./config/database");
 require("dotenv").config();
 
@@ -25,6 +25,7 @@ const profileRoutes = require("./routes/profile");
 const usersRoutes = require("./routes/users");
 const requestRoutes = require("./routes/request");
 const favoriteRoutes = require("./routes/favorite");
+const initializeSocket = require("./utils/socket");
 
 app.use("/api/", authRoutes);
 app.use("/api/", userRoutes);
@@ -37,10 +38,14 @@ app.get("/", (req, res) => {
   res.send("Hello World");
 });
 
+const server = http.createServer(app);
+
+initializeSocket(server);
+
 connectDB()
   .then(() => {
     console.log("Database connected successfully");
-    app.listen(process.env.PORT, () => {
+    server.listen(process.env.PORT, () => {
       console.log("Server is running on port 5000");
     });
   })
