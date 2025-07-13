@@ -51,4 +51,30 @@ router.get("/users", authorized, async (req, res) => {
   }
 });
 
+router.get("/users/:userId", authorized, async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const user = res.user;
+    if (!user) {
+      return res.status(401).send({ message: "Unauthorized" });
+    }
+
+    const data = await User.findOne({
+      _id: userId,
+    });
+
+    if (!data) {
+      return res.status(401).send({ message: "User not found" });
+    }
+
+    const { password: _, ...userWithoutPassword } = data.toObject();
+
+    res.send(userWithoutPassword);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({ message: err.message });
+  }
+});
+
 module.exports = router;

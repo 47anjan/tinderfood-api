@@ -1,6 +1,7 @@
 const socket = require("socket.io");
 
 const crypto = require("crypto");
+const Chat = require("../models/chat");
 
 const generateRoomId = (fromUserId, toUserId) => {
   return crypto
@@ -29,7 +30,7 @@ const initializeSocket = (server) => {
       socket.join(roomId);
     });
 
-    socket.on("sendMessage", (message) => {
+    socket.on("sendMessage", async (message) => {
       const roomId = generateRoomId(message.fromUserId, message.toUserId);
 
       socket.to(roomId).emit("receiveMessage", message);
