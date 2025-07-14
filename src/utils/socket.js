@@ -46,12 +46,14 @@ const initializeSocket = (server) => {
 
       chat.messages.push({
         senderId: message.fromUserId,
-        text: message.content,
+        text: message.text,
       });
 
-      await chat.save();
+      const data = await chat.save();
 
-      socket.to(roomId).emit("receiveMessage", message);
+      const msg = data.messages[data.messages.length - 1];
+
+      socket.to(roomId).emit("receiveMessage", msg);
     });
 
     socket.on("startTyping", ({ fromUserId, toUserId }) => {
