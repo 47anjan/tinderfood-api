@@ -33,6 +33,24 @@ const initializeSocket = (server) => {
     socket.on("sendMessage", async (message) => {
       const roomId = generateRoomId(message.fromUserId, message.toUserId);
 
+      let chat = await Chat.findOne({
+        participants: { $all: [message.fromUserId, message.toUserId] },
+      });
+
+      if (!chat) {
+        chat = await Chat({
+          participants: [message.fromUserId, message.toUserId],
+          messages: [],
+        });
+      }
+
+      chat.messages.push({
+        senderId: message.fromUserId,
+        text: message.content,
+      });
+
+      await chat.save();
+
       socket.to(roomId).emit("receiveMessage", message);
     });
 
