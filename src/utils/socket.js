@@ -33,6 +33,17 @@ const initializeSocket = (server) => {
     socket.on("sendMessage", async (message) => {
       const roomId = generateRoomId(message.fromUserId, message.toUserId);
 
+      const toUser = await Connection.findOne({
+        $or: [
+          { toUserId: message.toUserId, status: "accepted" },
+          { fromUserId: message.toUserId, status: "accepted" },
+        ],
+      });
+
+      if (!toUser) {
+        throw new Error("User not found");
+      }
+
       let chat = await Chat.findOne({
         participants: { $all: [message.fromUserId, message.toUserId] },
       });
