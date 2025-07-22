@@ -2,6 +2,7 @@ const socket = require("socket.io");
 
 const crypto = require("crypto");
 const Chat = require("../models/chat");
+const Connection = require("../models/connectionRequest");
 
 const generateRoomId = (fromUserId, toUserId) => {
   return crypto
@@ -9,6 +10,7 @@ const generateRoomId = (fromUserId, toUserId) => {
     .update([fromUserId, toUserId].sort().join("_"))
     .digest("hex");
 };
+const userSockets = new Map();
 
 const initializeSocket = (server) => {
   const io = socket(server, {
@@ -19,6 +21,11 @@ const initializeSocket = (server) => {
   });
 
   io.on("connection", (socket) => {
+    socket.on("registerUser", (userId) => {
+      userSockets.set(userId, socket.id);
+      console.log(`User ${userId} registered with socket ${socket.id}`);
+    });
+
     socket.on("disconnect", () => {
       console.log("User disconnected:", socket.id);
     });
@@ -46,12 +53,18 @@ const initializeSocket = (server) => {
 
       let chat = await Chat.findOne({
         participants: { $all: [message.fromUserId, message.toUserId] },
+      }).populate({
+        path: "messages.senderId",
+        select: "name username avatar",
       });
 
       if (!chat) {
         chat = await Chat({
           participants: [message.fromUserId, message.toUserId],
           messages: [],
+        }).populate({
+          path: "messages.senderId",
+          select: "name username avatar",
         });
       }
 
@@ -60,11 +73,37 @@ const initializeSocket = (server) => {
         text: message.text,
       });
 
-      const data = await chat.save();
+      const savedChat = await chat.save();
 
-      const msg = data.messages[data.messages.length - 1];
+      await savedChat.populate({
+        path: "messages.senderId",
+        select: "name username avatar",
+      });
+
+      const msg = savedChat.messages[savedChat.messages.length - 1];
 
       socket.to(roomId).emit("receiveMessage", msg);
+
+      // FIXED: Send notification to the RECIPIENT, not the sender
+      const recipientSocketId = userSockets.get(message.toUserId);
+
+      if (recipientSocketId) {
+        io.to(recipientSocketId).emit("messageNotification", {
+          fromUserId: message.fromUserId,
+          toUserId: message.toUserId,
+          message: message.text,
+          username: msg.senderId.username,
+          name: msg.senderId.name,
+          avatar: msg.senderId.avatar,
+          timestamp: msg.timestamp || new Date(),
+          messageId: msg._id,
+          chatId: savedChat._id,
+        });
+      } else {
+        console.log(
+          `User ${message.toUserId} is not online, notification not sent`
+        );
+      }
     });
 
     socket.on("startTyping", ({ fromUserId, toUserId }) => {

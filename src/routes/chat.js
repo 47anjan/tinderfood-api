@@ -27,6 +27,9 @@ router.get("/chat/:toUserId", authorized, async (req, res) => {
 
     let chat = await Chat.findOne({
       participants: { $all: [loggedInUserId, toUserId] },
+    }).populate({
+      path: "messages.senderId",
+      select: "name username avatar",
     });
 
     if (!chat) {
