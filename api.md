@@ -1,25 +1,34 @@
-## auth
+- **Auth**
 
-- POST /login
-- POST /signup
-- POST /logout
+  - `POST /api/signup`
+  - `POST /api/login`
+  - `POST /api/logout`
 
-## profile
+- **Profile**
 
-- GET /profile/view
-- PATCH /profile/edit
-- PATCH /profile/password
+  - `GET /api/profile/view`
+  - `PATCH /api/profile/edit`
 
-## request
+- **User Discovery**
 
-- POST /request/send/interested/:userId
-- POST /request/send/ignored/:userId
+  - `GET /api/users` – discover other foodies
+  - `GET /api/users/:userId` – get user profile
 
-- POST /request/review/accepted/:userId
-- POST /request/review/rejected/:userId
+- **Recipes**
 
-## user
+  - `POST /api/favorite/recipe/add`
+  - `GET /api/favorite/recipe/:favoriteRecipeId`
+  - `DELETE /api/favorite/recipe/remove/:favoriteRecipeId`
+  - `GET /api/user/favoriteRecipes`
 
-- GET /user/connections
-- GET /user/requests/received
-- GET /user/feed
+- **Social**
+
+  - `POST /api/request/send/:status/:toUserId` – send connection request
+  - `POST /api/request/review/:status/:requestId` – accept request
+  - `DELETE /api/request/review/:status/:requestId` – remove connection
+  - `GET /api/user/requests/received`
+  - `GET /api/user/requests/pending`
+  - `GET /api/user/connections`
+
+- **Chat**
+  - `GET /api/chat/:toUserId` – get or create chat
