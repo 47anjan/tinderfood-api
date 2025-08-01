@@ -10,7 +10,6 @@ const generateRoomId = (fromUserId, toUserId) => {
     .update([fromUserId, toUserId].sort().join("_"))
     .digest("hex");
 };
-const userSockets = new Map();
 
 const initializeSocket = (server) => {
   const io = socket(server, {
@@ -20,14 +19,37 @@ const initializeSocket = (server) => {
     },
   });
 
+  const userSockets = new Map();
+  const onlineUsers = new Set();
+
   io.on("connection", (socket) => {
     socket.on("registerUser", (userId) => {
       userSockets.set(userId, socket.id);
+      onlineUsers.add(userId);
+
       console.log(`User ${userId} registered with socket ${socket.id}`);
+
+      // Send updated online users list to everyone
+      io.emit("onlineUsers", Array.from(onlineUsers));
+    });
+
+    socket.on("getOnlineUsers", () => {
+      socket.emit("onlineUsers", Array.from(onlineUsers));
     });
 
     socket.on("disconnect", () => {
       console.log("User disconnected:", socket.id);
+
+      for (const [userId, socketId] of userSockets.entries()) {
+        if (socketId === socket.id) {
+          userSockets.delete(userId);
+          onlineUsers.delete(userId);
+
+          // Send updated online users list to everyone
+          io.emit("onlineUsers", Array.from(onlineUsers));
+          break;
+        }
+      }
     });
 
     socket.on("joinChat", ({ name, fromUserId, toUserId }) => {
@@ -80,7 +102,9 @@ const initializeSocket = (server) => {
         select: "name username avatar",
       });
 
-      const msg = savedChat.messages[savedChat.messages.length - 1];
+      const msg = await savedChat?.messages?.at(-1);
+
+      // const msg = savedChat.messages[savedChat.messages.length - 1];
 
       socket.to(roomId).emit("receiveMessage", msg);
 
