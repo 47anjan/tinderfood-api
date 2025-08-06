@@ -33,12 +33,28 @@ router.get("/users", authorized, async (req, res) => {
       hideUserFromList.add(con.toUserId.toString());
     });
 
-    const users = await User.find({
-      $and: [
-        { _id: { $nin: Array.from(hideUserFromList) } },
-        { _id: { $ne: loggedInUserId } },
-      ],
-    })
+    const filterConditions = [
+      { _id: { $nin: Array.from(hideUserFromList) } },
+      { _id: { $ne: loggedInUserId } },
+    ];
+
+    if (req.query.cookingLevel) {
+      filterConditions.push({ cookingLevel: req.query.cookingLevel });
+    }
+
+    if (req.query.country) {
+      filterConditions.push({
+        "location.country": { $regex: req.query.country, $options: "i" },
+      });
+    }
+
+    if (req.query.search) {
+      filterConditions.push({
+        name: { $regex: req.query.search, $options: "i" },
+      });
+    }
+
+    const users = await User.find({ $and: filterConditions })
       .select("-password -__v")
       .limit(limit)
       .skip(skip)
