@@ -13,7 +13,7 @@ app.use(cookie());
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: "http://47.128.252.100",
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
   })
